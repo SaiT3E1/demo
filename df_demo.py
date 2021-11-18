@@ -5,47 +5,39 @@ import altair as alt
 
 from urllib.error import URLError
 
-st.title('Demo for an intelligent platform: clinical trial matching')
+import time
 
-st.subheader('Clinical trials')
-
-
-trials = st.multiselect('Please select clinical trials:',['trial 1', 'trial 2', 'trial 3'],['trial 1'])
-
-df1 = pd.DataFrame({
-     'Inclusion': ['Patients diagnosed with type 2 diabetes mellitus', 'Patients have treated with diet/exercise at least 3 months ', '7.5% ≤HbA1C ≤11.0% at screening,7.0% ≤HbA1C ≤10.5% after run-in '],
-     'Exclusion': ['Patient has history of type 1 diabetes mellitus', 'Patient has history of ketoacidosis','Patient has history of severe unconscious hypoglycemosis'], })
-
-st.write('Here are the eligible criteria:', df1)
-
-st.subheader('Number of potentially eligible patients: 150')
-
-chart_data = pd.DataFrame(
-    np.random.randn(2, 2),
-    columns=["Contacted", "Not Contacted"])
-
-from PIL import Image
-image = Image.open('figure.png')
-st.image(image, width=300)
-
-a = {'Patient':  ['Person A', 'Person B',],
-     'Inclusion': ['0.90', '0.50'], 'Exclusion': ['0.20', '0.30'],'Match Confidence': ['0.85', '0.50'],}
-df3 = pd.DataFrame(a)
-
-st.write('Potential matches:', df3)
+patient_data = pd.read_csv('EHR Patient.csv',index_col = 1)
+matches_data = pd.read_csv('output_211117.csv')
 
 
-st.subheader('Patient Detail')
+disease = st.selectbox('Please select the condition you wish to match for:',['Choose a condition..','ALS', 'Diabetes', 'CKD'])
 
-st.multiselect('Please select patients:',['Person A', 'Person B', 'Person 3'],['Person B'])
-
-info = {'Conditions':  ['Type 1 diabetes', 'Hypertension',],
-        'Medications': ['CRESTOR 20 mg every bedtime', 'EPIPEN 2-PAK'],
-        }
-df2 = pd.DataFrame(info)
-
-st.write('Here is the patient detail:', df2)
-
-manual = st.radio("Is this patient a match? Your judgment helps improve the matching algorithm",('Yes', 'No'))
-
-contact = st.radio("Has this patient been contacted?",('Yes', 'No'))
+if disease == 'Diabetes':
+    #y_bar = 0
+    #second_bar = st.progress(0)
+    uploaded_file = st.file_uploader("Choose a file")
+    
+    if uploaded_file is not None:
+        st.subheader('Recieved file from Pattie <<ED Note 05-13-2021>>')
+    
+        with st.spinner('Parsing data.....'):
+            time.sleep(3.5)
+    
+        st.write('',patient_data['Medications/Conditions/Observations'])
+    
+        with st.spinner('Calculating similarities for various trials....'):
+            time.sleep(10)
+   
+        st.subheader("Here's what we found!")
+        st.write('',matches_data[['Trial ID','Match Confidence']])
+        
+        #anual = st.radio("Is this patient a match? Your judgment helps improve the matching algorithm",('Yes', 'No'))
+    else:
+        st.subheader('Please upload your Health Record')
+elif disease == 'ALS':
+    st.write('We currently only match for Diabetes more conditions will be added soon.')
+elif disease == 'Choose a condition..':
+    pass
+else:
+    st.write('We currently only match for Diabetes more conditions will be added soon.')
